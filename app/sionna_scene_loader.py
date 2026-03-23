@@ -1,7 +1,7 @@
 import json
 import os
 
-# ── Sionna imports (requires: pip install sionna) ──────────────────────────
+# Sionna imports (requires: pip install sionna)
 try:
     import sionna
     from sionna.rt import (
@@ -19,7 +19,7 @@ except ImportError:
 OUTPUT_DIR  = "output"
 JSON_PATH   = os.path.join(OUTPUT_DIR, "sionna_scene.json")
 
-# ── Sionna built-in material names ────────────────────────────────────────
+# Sionna built-in material names
 #   See: sionna.rt.scene.MATERIALS
 #   Common options: "itu_concrete", "itu_brick", "itu_glass", "itu_wood",
 #                   "itu_marble", "itu_metal", "itu_very_dry_ground"
@@ -54,10 +54,10 @@ def load_facade_scene(json_path: str = JSON_PATH):
         print(f"  {cls:<20} → {path}")
 
     if not SIONNA_AVAILABLE:
-        print("\n── Sionna not available, stopping here. ──")
+        print("\nSionna not available, stopping here.")
         return None
 
-    # ── Build Sionna Scene ─────────────────────────────────────────────────
+    # Build Sionna Scene
     # Sionna expects a Mitsuba XML scene file.
     # We generate one programmatically pointing at our .obj files.
     xml_path = _write_mitsuba_xml(class_files, desc)

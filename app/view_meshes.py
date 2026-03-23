@@ -29,7 +29,7 @@ def color_for(filename: str):
     return DEFAULT_COLOR
 
 
-# ── 1. Mask overlay ────────────────────────────────────────────────────────
+# 1. Mask overlay
 image = cv2.imread(IMAGE_PATH)
 if image is None:
     print(f"⚠  Could not load {IMAGE_PATH}")
@@ -54,7 +54,7 @@ else:
     cv2.imwrite(overlay_path, overlay)
     print(f"Mask overlay → {overlay_path}")
 
-# ── 2. Scale summary ───────────────────────────────────────────────────────
+# 2. Scale summary
 if os.path.exists(JSON_PATH):
     with open(JSON_PATH) as f:
         meta = json.load(f)
@@ -80,7 +80,7 @@ if os.path.exists(JSON_PATH):
     for lbl, info in sorted(by_class.items()):
         print(f"  {lbl:<22} {info['count']:>6} {info['total_m2']:>12.2f} {info['material']:<20}")
 
-# ── 3. 3-D viewer ─────────────────────────────────────────────────────────
+# 3. 3-D viewer
 meshes = []
 colors = []
 

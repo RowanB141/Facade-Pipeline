@@ -16,9 +16,7 @@ import trimesh
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
 from segment_anything import sam_model_registry, SamPredictor
 
-# ─────────────────────────────────────────────
 # Config
-# ─────────────────────────────────────────────
 IMAGE_PATH     = "input/building.jpg"
 SAM_CHECKPOINT = "checkpoints/sam_vit_h_4b8939.pth"
 OUTPUT_DIR     = "output"
@@ -32,22 +30,22 @@ TILE_SIZE     = 1024
 TILE_OVERLAP  = 256
 NMS_IOU_THRESH = 0.4
 
-# ── Crop: ignore bottom N% of image (parking lot, cars, ground) ──────────────
+# Crop: ignore bottom N% of image (parking lot, cars, ground)
 # Set to 0.0 to disable. 0.35 means ignore bottom 35% of image.
 CROP_BOTTOM_FRACTION = 0.30   # lower floor windows above garage
 CROP_TOP_FRACTION    = 0.05   # just sky — brick top row starts ~10% down
 CROP_LEFT_FRACTION   = 0.27   # exclude glass atrium + tree
 CROP_RIGHT_FRACTION  = 0.88   # exclude concrete stairwell block on right (keep left 88%)
 
-# ── Box size limits as fraction of image area ─────────────────────────────────
+# Box size limits as fraction of image area
 MIN_BOX_AREA_FRACTION = 0.0005
 MAX_BOX_AREA_FRACTION = 0.02
 
-# ── Aspect ratio (width/height) ───────────────────────────────────────────────
+# Aspect ratio (width/height)
 MIN_ASPECT = 0.4
 MAX_ASPECT = 2.5
 
-# ── Only keep these classes — everything else is discarded ───────────────────
+# Only keep these classes — everything else is discarded
 KEEP_CLASSES = {
     "window",
     "glass window",
@@ -98,9 +96,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 for sub in ["masks", "meshes", "per_class"]:
     os.makedirs(os.path.join(OUTPUT_DIR, sub), exist_ok=True)
 
-# ─────────────────────────────────────────────
 # Helpers
-# ─────────────────────────────────────────────
 def compute_pixel_to_meter(image_h_px, known_height_m):
     return known_height_m / image_h_px
 
@@ -221,9 +217,7 @@ def is_valid_box(box, W, H, x_min_px, x_max_px, y_min_px, y_max_px, min_area_fra
 
     return True, ""
 
-# ─────────────────────────────────────────────
 # Load image
-# ─────────────────────────────────────────────
 print(f"\n{'─'*52}")
 print(f" Facade Pipeline  |  device={DEVICE}")
 print(f"{'─'*52}\n")
@@ -244,9 +238,7 @@ print(f"         (top {int(CROP_TOP_FRACTION*100)}%  bottom {int(CROP_BOTTOM_FRA
 print(f"Filters: aspect {MIN_ASPECT}–{MAX_ASPECT}  |  box area {MIN_BOX_AREA_FRACTION*100:.2f}%–{MAX_BOX_AREA_FRACTION*100:.1f}% of image")
 print(f"Classes: {sorted(KEEP_CLASSES)}\n")
 
-# ─────────────────────────────────────────────
 # Load models
-# ─────────────────────────────────────────────
 print("Loading Grounding DINO …")
 processor       = AutoProcessor.from_pretrained(MODEL_ID)
 grounding_model = AutoModelForZeroShotObjectDetection.from_pretrained(MODEL_ID).to(DEVICE)
@@ -257,9 +249,7 @@ sam.to(device=DEVICE)
 sam_predictor = SamPredictor(sam)
 sam_predictor.set_image(image_source)
 
-# ─────────────────────────────────────────────
 # Detection
-# ─────────────────────────────────────────────
 all_boxes, all_phrases, all_scores = [], [], []
 
 # Crop image to building zone (excluding sky, ground, and left curtain wall)
@@ -285,7 +275,7 @@ if USE_TILING:
         all_phrases.extend(tp); all_scores.extend(ts)
     print(f"  → {len(all_boxes)} raw detections before filtering")
 
-# ── Filter: class whitelist + crop zone + size ──────────────────────────────
+# Filter: class whitelist + crop zone + size
 filtered_boxes, filtered_phrases, filtered_scores = [], [], []
 rejected = {"class": 0, "crop": 0, "size": 0, "aspect": 0}
 
@@ -322,9 +312,7 @@ else:
     fb, fs = np.zeros((0,4)), np.array([])
     print("⚠  No detections survived filtering. Try lowering BOX_THRESHOLD.\n")
 
-# ─────────────────────────────────────────────
 # SAM + mesh export
-# ─────────────────────────────────────────────
 scene_meshes, metadata, class_polygons = [], [], {}
 
 for idx, (box, phrase, score) in enumerate(zip(fb, filtered_phrases, fs)):
@@ -370,9 +358,7 @@ for idx, (box, phrase, score) in enumerate(zip(fb, filtered_phrases, fs)):
 
     print(f"  ↳ {len(geoms)} polygon(s)  mat={sionna_mat}  depth={extrude_m}m")
 
-# ─────────────────────────────────────────────
 # Export
-# ─────────────────────────────────────────────
 print("\nExporting …")
 if scene_meshes:
     combined = trimesh.util.concatenate([m for m,_,_ in scene_meshes])

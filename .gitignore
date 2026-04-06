@@ -3,6 +3,7 @@
 checkpoints/
 output/
 output/**
+input/
 
 # Optional local artifacts
 *.log

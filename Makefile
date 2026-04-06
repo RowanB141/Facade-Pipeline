@@ -23,9 +23,12 @@ shell:
 		-v $(PWD)/output:/workspace/output \
 		-v $(PWD)/app:/workspace/app \
 		-v $(PWD)/.hf_cache:/root/.cache/huggingface \
+		-v /usr/lib/wsl:/usr/lib/wsl \
+		-e DRJIT_LIBOPTIX_PATH=/usr/lib/wsl/lib \
+		-e LD_LIBRARY_PATH=/usr/lib/wsl/lib:$$LD_LIBRARY_PATH \
 		--entrypoint /bin/bash \
 		$(IMAGE_NAME)
-
+		
 view:
 	docker run --rm -it --gpus all \
 		-v $(PWD)/checkpoints:/workspace/checkpoints \

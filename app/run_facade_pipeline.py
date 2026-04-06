@@ -22,28 +22,28 @@ SAM_CHECKPOINT = "checkpoints/sam_vit_h_4b8939.pth"
 OUTPUT_DIR     = "output"
 MODEL_ID       = "IDEA-Research/grounding-dino-base"
 
-BOX_THRESHOLD  = 0.22
-TEXT_THRESHOLD = 0.18
+BOX_THRESHOLD  = 0.18
+TEXT_THRESHOLD = 0.15
 
 USE_TILING    = True
-TILE_SIZE     = 1024
-TILE_OVERLAP  = 256
-NMS_IOU_THRESH = 0.4
+TILE_SIZE     = 512
+TILE_OVERLAP  = 128
+NMS_IOU_THRESH = 0.25
 
 # Crop: ignore bottom N% of image (parking lot, cars, ground)
 # Set to 0.0 to disable. 0.35 means ignore bottom 35% of image.
-CROP_BOTTOM_FRACTION = 0.30   # lower floor windows above garage
-CROP_TOP_FRACTION    = 0.05   # just sky — brick top row starts ~10% down
-CROP_LEFT_FRACTION   = 0.27   # exclude glass atrium + tree
-CROP_RIGHT_FRACTION  = 0.88   # exclude concrete stairwell block on right (keep left 88%)
+CROP_BOTTOM_FRACTION = 0.15   # lower floor windows above garage
+CROP_TOP_FRACTION    = 0.08   # just sky — brick top row starts ~10% down
+CROP_LEFT_FRACTION   = 0.08   # exclude glass atrium + tree
+CROP_RIGHT_FRACTION  = 0.95   # exclude concrete stairwell block on right (keep left 88%)
 
 # Box size limits as fraction of image area
-MIN_BOX_AREA_FRACTION = 0.0005
-MAX_BOX_AREA_FRACTION = 0.02
+MIN_BOX_AREA_FRACTION = 0.0003
+MAX_BOX_AREA_FRACTION = 0.015
 
 # Aspect ratio (width/height)
-MIN_ASPECT = 0.4
-MAX_ASPECT = 2.5
+MIN_ASPECT = 0.2
+MAX_ASPECT = 5.0
 
 # Only keep these classes — everything else is discarded
 KEEP_CLASSES = {
@@ -67,7 +67,7 @@ TEXT_LABELS = [[
     "building door",
 ]]
 
-KNOWN_WALL_HEIGHT_M = 15.0   # ~5 storey building visible in photo
+KNOWN_WALL_HEIGHT_M = 28.0   # ~5 storey building visible in photo
 
 EXTRUDE_DEPTH_M = {
     "window":         0.05,
@@ -135,6 +135,18 @@ def polygon_to_mesh(poly, extrude_m):
     except Exception as e:
         print(f"  ⚠ extrude failed: {e}")
         return None
+
+def normalize_phrase(phrase):
+    for kc in ["door", "window"]:  # order matters — check door first
+        if kc in phrase:
+            return kc
+    return phrase
+
+def phrase_matches(phrase, keep_classes):
+    for kc in keep_classes:
+        if kc in phrase:
+            return True
+    return False
 
 def phrase_to_safe(phrase):
     return str(phrase).strip().lower().replace(" ", "_").replace("/", "_")
@@ -275,6 +287,12 @@ if USE_TILING:
         all_phrases.extend(tp); all_scores.extend(ts)
     print(f"  → {len(all_boxes)} raw detections before filtering")
 
+from collections import Counter
+label_counts = Counter(str(p).lower().strip() for p in all_phrases)
+print("\nDINO label distribution:")
+for label, count in label_counts.most_common(20):
+    print(f"  {label:<30} {count}")
+
 # Filter: class whitelist + crop zone + size
 filtered_boxes, filtered_phrases, filtered_scores = [], [], []
 rejected = {"class": 0, "crop": 0, "size": 0, "aspect": 0}
@@ -282,9 +300,11 @@ rejected = {"class": 0, "crop": 0, "size": 0, "aspect": 0}
 for box, phrase, score in zip(all_boxes, all_phrases, all_scores):
     phrase = str(phrase).lower().strip()
 
-    if phrase not in KEEP_CLASSES:
+    if not phrase_matches(phrase, KEEP_CLASSES):
         rejected["class"] += 1
         continue
+
+    phrase = normalize_phrase(phrase)
 
     ok, reason = is_valid_box(box, W_px, H_px, x_min_px, x_max_px, y_min_px, y_max_px,
                                MIN_BOX_AREA_FRACTION, MAX_BOX_AREA_FRACTION,

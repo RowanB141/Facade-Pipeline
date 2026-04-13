@@ -95,3 +95,5 @@ jobs:
                 `**${r.passed} passed · ${r.failed} failed · ${r.skipped} skipped**\n\n` +
                 `| | Check | Detail |\n|---|---|---|\n${rows}`,
             });
+      - name: Fix workspace permissions
+        run: sudo chown -R $USER:$USER ${{ github.workspace }} || true

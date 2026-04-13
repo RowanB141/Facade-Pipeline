@@ -217,8 +217,9 @@ class TestIsValidBox:
         assert "large" in reason
 
     def test_bad_aspect_too_wide(self):
-        # 500×50 — aspect 10
-        ok, reason = self._check([200, 300, 700, 350])
+        # 200 wide × 20 tall → aspect = 10, exceeds MAX_ASPECT=5.0
+        # area = 4000 / 800000 = 0.5% — within the 0.03%–1.5% area bounds
+        ok, reason = self._check([300, 390, 500, 410])
         assert not ok
         assert "aspect" in reason
 

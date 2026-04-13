@@ -29,7 +29,6 @@ jobs:
     steps:
       - name: Fix workspace permissions
         run: |
-          sudo chown -R $USER:$USER ${{ github.workspace }}/.hf_cache || true
           sudo chown -R $USER:$USER ${{ github.workspace }}/test-output || true
           sudo chown -R $USER:$USER ${{ github.workspace }}/app/__pycache__ || true
 
@@ -49,7 +48,7 @@ jobs:
             -v ${{ github.workspace }}/tests/fixtures:/workspace/input \
             -v ${{ github.workspace }}/test-output:/workspace/output \
             -v ${{ github.workspace }}/app:/workspace/app \
-            -v ${{ github.workspace }}/.hf_cache:/root/.cache/huggingface \
+            -v /home/jesssms/.hf_cache:/root/.cache/huggingface \
             facade-sam:latest python3 app/run_facade_pipeline.py
 
       - name: Generate Sionna XML

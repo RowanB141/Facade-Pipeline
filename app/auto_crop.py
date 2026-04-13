@@ -20,7 +20,9 @@ so the pipeline degrades gracefully.
 """
 
 import numpy as np
-import torch
+# torch is NOT imported at module level — it is imported lazily inside
+# _run_dino() so that test_pipeline.py can import _largest_box and _fallback
+# (pure NumPy helpers) without torch being installed.
 
 # Prompts that reliably retrieve the main building facade box from DINO.
 # Broad terms score higher than specific architectural features here.
@@ -34,6 +36,7 @@ FACADE_TEXT_THRESHOLD = 0.15
 
 def _run_dino(image_pil, processor, model, text_labels, box_thresh, text_thresh, device):
     """Single DINO forward pass; returns (boxes_np, labels, scores_np)."""
+    import torch  # deferred — not needed by the pure helpers used in unit tests
     inputs = processor(images=image_pil, text=text_labels, return_tensors="pt")
     inputs = {k: v.to(device) if hasattr(v, "to") else v for k, v in inputs.items()}
     with torch.no_grad():

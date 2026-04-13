@@ -97,6 +97,7 @@ def path_power(paths):
 def path_count(paths):
     a_real, _ = paths.a
     return int(a_real.shape[-1])
+    
 
 def save_line(df, x, y, title, fname):
     plt.figure(figsize=(7,5))

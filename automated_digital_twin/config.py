@@ -43,21 +43,20 @@ DEM_SAMPLING_AREA = 0.28            # Suggested minimum is the density of your L
 # Coordinate System: NAD 1983 (2011) StatePlane Texas Central FIPS 4203 (Meters) - WKID: 6577
 
 AOI_COORDINATE_VERTICES = [
-    (949454.22, 3072383.29, 0.0),
-    (949845.76, 3072335.22, 0.0),
-    (949992.39, 3072224.17, 0.0),
-    (949939.71, 3071499.04, 0.0),
-    (949397.50, 3071529.57, 0.0)
+    (949777.46, 3071933.97, 0.0),
+    (949853.50, 3071929.12, 0.0),
+    (949847.49, 3071844.53, 0.0),
+    (949775.61, 3071847.07, 0.0)
 ]
 
 # Example coordinates for the UT Austin Physics, Math, and Astronomy Building:
 #
 # AOI_COORDINATE_VERTICES = [
-#         (949777.46, 3071933.97, 0.0),
-#         (949853.50, 3071929.12, 0.0),
-#         (949847.49, 3071844.53, 0.0),
-#         (949775.61, 3071847.07, 0.0)
-#     ]
+#     (949777.46, 3071933.97, 0.0),
+#     (949853.50, 3071929.12, 0.0),
+#     (949847.49, 3071844.53, 0.0),
+#     (949775.61, 3071847.07, 0.0)
+# ]
 #
 # The area of interest can generally be any n-sided polygon
 # For example an area with a dozen buildings:

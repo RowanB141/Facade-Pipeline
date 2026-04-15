@@ -100,9 +100,10 @@ CROP_RIGHT_FRACTION  = 0.92   # fraction of width to keep (crop right edge)
 These crop values are tuned per-photo. See the tuning guide below.
 
 ### 6. Run the pipeline
+> Run this in Windows PowerShell, not WSL
 
 ```bash
-make run
+.\run_full_pipeline.bat
 ```
 
 ### 7. Inspect results
